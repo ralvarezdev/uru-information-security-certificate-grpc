@@ -10,5 +10,5 @@ if errorlevel 1 (
 REM Generate keys using OpenSSL
 echo Generating Ed25519 key pair...
 openssl genpkey -algorithm ed25519 -out private_key.pem
-openssl pkey -in private.key -pubout -out public_key.pem
-echo Keys generated: private.key and public.key
+openssl pkey -in private_key.pem -pubout -out public_key.pem
+echo Keys generated: private_key.pem and public_key.pem"
