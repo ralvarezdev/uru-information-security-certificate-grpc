@@ -2,13 +2,15 @@ syntax = "proto3";
 
 package ralvarezdev;
 
+import "google/protobuf/empty.proto";
+
 service Certificate {
-    rpc GenerateCertificate(GenerateCertificateRequest) returns (stream GenerateCertificateResponse);
+    rpc IssueCertificate(IssueCertificateRequest) returns (stream IssueCertificateResponse);
     rpc ValidateCertificate(stream ValidateCertificateRequest) returns (ValidateCertificateResponse);
-    rpc GetPublicKey(GetPublicKeyRequest) returns (GetPublicKeyResponse);
+    rpc RevokeCertificate(RevokeCertificateRequest) returns (google.protobuf.Empty);
 }
 
-message GenerateCertificateRequest {
+message IssueCertificateRequest {
   string common_name = 1;
   string organization = 2;
   string organizational_unit = 3;
@@ -18,7 +20,7 @@ message GenerateCertificateRequest {
   bytes public_key = 7;
 }
 
-message GenerateCertificateResponse {
+message IssueCertificateResponse {
     bytes content = 1;
 }
 
@@ -37,4 +39,8 @@ message GetPublicKeyRequest {
 
 message GetPublicKeyResponse {
     bytes public_key = 1;
+}
+
+message RevokeCertificateRequest {
+    string serial_number = 1;
 }

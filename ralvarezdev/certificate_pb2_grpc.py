@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from ralvarezdev import certificate_pb2 as ralvarezdev_dot_certificate__pb2
 
 GRPC_GENERATED_VERSION = '1.75.1'
@@ -34,27 +35,27 @@ class CertificateStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GenerateCertificate = channel.unary_stream(
-                '/ralvarezdev.Certificate/GenerateCertificate',
-                request_serializer=ralvarezdev_dot_certificate__pb2.GenerateCertificateRequest.SerializeToString,
-                response_deserializer=ralvarezdev_dot_certificate__pb2.GenerateCertificateResponse.FromString,
+        self.IssueCertificate = channel.unary_stream(
+                '/ralvarezdev.Certificate/IssueCertificate',
+                request_serializer=ralvarezdev_dot_certificate__pb2.IssueCertificateRequest.SerializeToString,
+                response_deserializer=ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.FromString,
                 _registered_method=True)
         self.ValidateCertificate = channel.stream_unary(
                 '/ralvarezdev.Certificate/ValidateCertificate',
                 request_serializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateRequest.SerializeToString,
                 response_deserializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateResponse.FromString,
                 _registered_method=True)
-        self.GetPublicKey = channel.unary_unary(
-                '/ralvarezdev.Certificate/GetPublicKey',
-                request_serializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyRequest.SerializeToString,
-                response_deserializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyResponse.FromString,
+        self.RevokeCertificate = channel.unary_unary(
+                '/ralvarezdev.Certificate/RevokeCertificate',
+                request_serializer=ralvarezdev_dot_certificate__pb2.RevokeCertificateRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
 
 
 class CertificateServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GenerateCertificate(self, request, context):
+    def IssueCertificate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -66,7 +67,7 @@ class CertificateServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPublicKey(self, request, context):
+    def RevokeCertificate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -75,20 +76,20 @@ class CertificateServicer(object):
 
 def add_CertificateServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GenerateCertificate': grpc.unary_stream_rpc_method_handler(
-                    servicer.GenerateCertificate,
-                    request_deserializer=ralvarezdev_dot_certificate__pb2.GenerateCertificateRequest.FromString,
-                    response_serializer=ralvarezdev_dot_certificate__pb2.GenerateCertificateResponse.SerializeToString,
+            'IssueCertificate': grpc.unary_stream_rpc_method_handler(
+                    servicer.IssueCertificate,
+                    request_deserializer=ralvarezdev_dot_certificate__pb2.IssueCertificateRequest.FromString,
+                    response_serializer=ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.SerializeToString,
             ),
             'ValidateCertificate': grpc.stream_unary_rpc_method_handler(
                     servicer.ValidateCertificate,
                     request_deserializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateRequest.FromString,
                     response_serializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateResponse.SerializeToString,
             ),
-            'GetPublicKey': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetPublicKey,
-                    request_deserializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyRequest.FromString,
-                    response_serializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyResponse.SerializeToString,
+            'RevokeCertificate': grpc.unary_unary_rpc_method_handler(
+                    servicer.RevokeCertificate,
+                    request_deserializer=ralvarezdev_dot_certificate__pb2.RevokeCertificateRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -102,7 +103,7 @@ class Certificate(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GenerateCertificate(request,
+    def IssueCertificate(request,
             target,
             options=(),
             channel_credentials=None,
@@ -115,9 +116,9 @@ class Certificate(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/ralvarezdev.Certificate/GenerateCertificate',
-            ralvarezdev_dot_certificate__pb2.GenerateCertificateRequest.SerializeToString,
-            ralvarezdev_dot_certificate__pb2.GenerateCertificateResponse.FromString,
+            '/ralvarezdev.Certificate/IssueCertificate',
+            ralvarezdev_dot_certificate__pb2.IssueCertificateRequest.SerializeToString,
+            ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -156,7 +157,7 @@ class Certificate(object):
             _registered_method=True)
 
     @staticmethod
-    def GetPublicKey(request,
+    def RevokeCertificate(request,
             target,
             options=(),
             channel_credentials=None,
@@ -169,9 +170,9 @@ class Certificate(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/ralvarezdev.Certificate/GetPublicKey',
-            ralvarezdev_dot_certificate__pb2.GetPublicKeyRequest.SerializeToString,
-            ralvarezdev_dot_certificate__pb2.GetPublicKeyResponse.FromString,
+            '/ralvarezdev.Certificate/RevokeCertificate',
+            ralvarezdev_dot_certificate__pb2.RevokeCertificateRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

@@ -19,18 +19,20 @@ from crypto.ed25519 import (
 )
 from database.psycopg.connection import (
 	upsert_organization_key,
-	get_active_organization_key,
+	issue_certificate,
+	revoke_certificate,
+	check_certificate_validity,
 )
 
 class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
-	def GenerateCertificate(self, request, context):
+	def IssueCertificate(self, request, context):
 		# Get the public key from the request
 		public_key_pem = request.public_key
 		if not public_key_pem:
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Public key is required')
 			print("Missing public key")
-			yield certificate_pb2.GenerateCertificateResponse()
+			yield certificate_pb2.IssueCertificateResponse()
 			return
 
 		# Check if the public key is valid
@@ -40,7 +42,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Invalid public key format')
 			print(f"Invalid public key format: {e}")
-			yield certificate_pb2.GenerateCertificateResponse()
+			yield certificate_pb2.IssueCertificateResponse()
 			return
 
 		# Get the certificate subject from the request
@@ -68,7 +70,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 					f"{field.replace('_', ' ').title()} is required"
 					)
 				print(f"Missing required field: {field}")
-				yield certificate_pb2.GenerateCertificateResponse()
+				yield certificate_pb2.IssueCertificateResponse()
 				return
 
 		# Check if the public key common name is already associated with an existing certificate
@@ -76,11 +78,11 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details(f"Common name '{common_name}' is already associated with an existing certificate")
 			print(f"Common name '{common_name}' is already associated with an existing certificate")
-			yield certificate_pb2.GenerateCertificateResponse()
+			yield certificate_pb2.IssueCertificateResponse()
 			return
 
 		# Generate the certificate
-		cert_content = generate_certificate_from_public_key(
+		cert, cert_content = generate_certificate_from_public_key(
 			public_key=public_key,
 			issuer_subject=ISSUER_SUBJECT,
 			common_name=common_name,
@@ -91,11 +93,22 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			country=country,
 			certificate_validity_days=CERTIFICATE_VALIDITY_DAYS,
 		)
+		print(f"Issued certificate for {common_name}")
 
-		print(f"Generated certificate for {common_name}")
+		# Get the serial number and expiration date from the certificate
+		serial_number = cert.serial_number
+		expiration_date = cert.not_valid_after
+
+		# Store the issued certificate in the database
+		if not issue_certificate(serial_number, common_name, expiration_date):
+			context.set_code(grpc.StatusCode.INTERNAL)
+			context.set_details('Error storing issued certificate')
+			print("Error storing issued certificate")
+			yield certificate_pb2.IssueCertificateResponse()
+			return
 
 		# Return the certificate content
-		yield certificate_pb2.GenerateCertificateResponse(content=cert_content)
+		yield certificate_pb2.IssueCertificateResponse(content=cert_content)
 
 	def ValidateCertificate(self, request, context):
 		# Get the certificate from the request
@@ -122,48 +135,39 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			print("Invalid certificate")
 			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Invalid certificate")
 
-		# Check if the public key is associated with an active organization key
+		# Load the certificate to get its serial number
 		print(f"Certificate validation result: {is_valid}")
 		cert = x509.load_pem_x509_certificate(cert_pem)
-		common_name = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
-		public_key = cert.public_key()
-		active_public_key = get_active_organization_key(common_name)
-		if not active_public_key:
-			context.set_code(grpc.StatusCode.NOT_FOUND)
-			context.set_details(f'No active organization key found for common name: {common_name}')
-			print(f'No active organization key found for common name: {common_name}')
-			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="No active organization key found")
-		if public_key.public_bytes(
-			serialization.Encoding.Raw,
-			serialization.PublicFormat.Raw
-			) != active_public_key:
+		serial_number = cert.serial_number
+
+		# Check if the certificate is revoked or expired in the database
+		if not check_certificate_validity(serial_number):
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
-			context.set_details('Certificate public key does not match active organization key')
-			print('Certificate public key does not match active organization key')
-			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Certificate public key does not match active organization key")
+			context.set_details('Certificate is revoked or expired')
+			print("Certificate is revoked or expired")
+			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Certificate is revoked or expired")
 
 		# Return the validation result
 		return certificate_pb2.ValidateCertificateResponse(is_valid=is_valid)
 
-	def GetPublicKey(self, request, context):
-		# Get the common name from the request
-		common_name = request.common_name
-		if not common_name:
+	def RevokeCertificate(self, request, context):
+		# Get the serial number from the request
+		serial_number = request.serial_number
+		if not serial_number:
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-			context.set_details('Common name is required')
-			print("Missing common name")
-			return certificate_pb2.GetPublicKeyResponse()
+			context.set_details('Serial number is required')
+			print("Missing serial number")
+			return certificate_pb2.RevokeCertificateResponse(success=False)
 
-		# Get the public key from the database
-		public_key = get_active_organization_key(common_name)
-		if not public_key:
-			context.set_code(grpc.StatusCode.NOT_FOUND)
-			context.set_details(f'No public key found for common name: {common_name}')
-			print(f'No public key found for common name: {common_name}')
-			return certificate_pb2.GetPublicKeyResponse()
+		# Revoke the certificate in the database
+		if not revoke_certificate(serial_number):
+			context.set_code(grpc.StatusCode.INTERNAL)
+			context.set_details('Error revoking certificate or certificate not found')
+			print("Error revoking certificate or certificate not found")
+			return certificate_pb2.RevokeCertificateResponse(success=False)
 
-		print(f"Retrieved public key for {common_name}")
-		return certificate_pb2.GetPublicKeyResponse(public_key=public_key)
+		print(f"Revoked certificate with serial number: {serial_number}")
+		return certificate_pb2.RevokeCertificateResponse(success=True)
 
 def serve(host: str, port: int):
 	"""

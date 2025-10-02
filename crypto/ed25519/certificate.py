@@ -15,7 +15,7 @@ def generate_certificate_from_public_key(
 	state: str,
 	country: str,
 	certificate_validity_days: int,
-):
+) -> tuple[x509.Certificate, bytes]:
 	"""
 	Generate a self-signed X.509 certificate from a public key.
 
@@ -31,8 +31,9 @@ def generate_certificate_from_public_key(
 		certificate_validity_days (int): The number of validity days for the certificate.
 
 	Returns:
-		bytes: The PEM-encoded certificate.
+		tuple[x509.Certificate, bytes]: The certificate object and the PEM-encoded certificate.
 	"""
+	# Create the subject
 	subject = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, country),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state),
@@ -41,6 +42,10 @@ def generate_certificate_from_public_key(
 		x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, organizational_unit),
 		x509.NameAttribute(NameOID.COMMON_NAME, common_name),
     ])
+
+	# Generates a random 20-byte integer
+	serial_number = x509.random_serial_number()
+
 	cert = x509.CertificateBuilder().subject_name(
         subject
     ).issuer_name(
@@ -53,11 +58,13 @@ def generate_certificate_from_public_key(
         datetime.now(timezone.utc)
     ).not_valid_after(
         datetime.now(timezone.utc) + timedelta(days=certificate_validity_days)
-    ).sign(
+    ).serial_number(
+		serial_number
+	).sign(
 		private_key=ISSUER_PRIVATE_KEY,
 		algorithm=None
 	)
-	return cert.public_bytes(serialization.Encoding.PEM)
+	return cert, cert.public_bytes(serialization.Encoding.PEM)
 
 def validate_certificate_from_pem_data(certificate_pem: bytes, public_key) -> bool:
 	"""

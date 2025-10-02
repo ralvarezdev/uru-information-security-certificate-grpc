@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import psycopg
 
 from database.psycopg import (
@@ -49,29 +51,80 @@ def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
 				print(f"An error occurred while upserting the organization key: {e}")
 				return False
 
-def get_active_organization_key(common_name: str) -> bytes | None:
-	"""Retrieve the organization key for a given common name from PostgreSQL.
+def revoke_certificate(serial_number: str) -> bool:
+	"""Call the revoke_certificate procedure in PostgreSQL.
 
 	Args:
-		common_name (str): The common name associated with the organization key.
+		serial_number (str): The serial number of the certificate to be revoked.
 
 	Returns:
-		bytes | None: The organization key value if found, None otherwise.
+		bool: True if the operation was successful, False otherwise.
 	"""
 	with create_connection() as conn:
 		with conn.cursor() as cur:
 			try:
 				cur.execute(
-					"SELECT get_active_organization_key(%s);",
-					(common_name,)
+					"CALL revoke_certificate(%s);",
+					(serial_number,)
+				)
+				conn.commit()
+				print(f"Revoked certificate with serial number: {serial_number}")
+				return True
+			except Exception as e:
+				conn.rollback()
+				print(f"An error occurred while revoking the certificate: {e}")
+				return False
+
+def check_certificate_validity(serial_number: int) -> bool:
+	"""Call the check_certificate_validity procedure in PostgreSQL.
+
+	Args:
+		serial_number (int): The serial number of the certificate to check.
+
+	Returns:
+		bool: True if the certificate is valid, False otherwise.
+	"""
+	with create_connection() as conn:
+		with conn.cursor() as cur:
+			try:
+				cur.execute(
+					"SELECT check_certificate_validity(%s);",
+					(serial_number,)
 				)
 				result = cur.fetchone()
-				if result and result[0]:
-					print(f"Retrieved organization key for common name: {common_name}")
-					return result[0]
+				if result is not None:
+					is_valid = result[0]
+					print(f"Certificate with serial number {serial_number} validity: {is_valid}")
+					return is_valid
 				else:
-					print(f"No active organization key found for common name: {common_name}")
-					return None
+					print(f"No certificate found with serial number: {serial_number}")
+					return False
 			except Exception as e:
-				print(f"An error occurred while retrieving the organization key: {e}")
-				return None
+				print(f"An error occurred while checking certificate validity: {e}")
+				return False
+
+def issue_certificate(serial_number: int, common_name: str, expires_at: datetime) -> bool:
+	"""Call the issue_certificate procedure in PostgreSQL.
+
+	Args:
+		serial_number (int): The serial number of the issued certificate.
+		common_name (str): The common name associated with the issued certificate.
+		expires_at (datetime): The expiration timestamp of the issued certificate.
+
+	Returns:
+		bool: True if the operation was successful, False otherwise.
+	"""
+	with create_connection() as conn:
+		with conn.cursor() as cur:
+			try:
+				cur.execute(
+					"CALL issue_certificate(%s, %s, %s);",
+					(serial_number, common_name, expires_at)
+				)
+				conn.commit()
+				print(f"Issued certificate with serial number: {serial_number}")
+				return True
+			except Exception as e:
+				conn.rollback()
+				print(f"An error occurred while issuing the certificate: {e}")
+				return False
