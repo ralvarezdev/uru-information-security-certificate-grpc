@@ -3,10 +3,9 @@ from concurrent import futures
 
 import grpc
 from cryptography import x509
-from cryptography.hazmat.primitives import serialization
 
-import ralvarezdev.certificate_pb2 as certificate_pb2
-import ralvarezdev.certificate_pb2_grpc as certificate_pb2_grpc
+from ralvarezdev import certificate_pb2
+from ralvarezdev import certificate_pb2_grpc
 from crypto.ed25519.keys import load_public_key_from_pem_data
 from crypto.ed25519.certificate import (
 	generate_certificate_from_public_key,
