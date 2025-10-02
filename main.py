@@ -2,6 +2,8 @@ from argparse import ArgumentParser
 from concurrent import futures
 
 import grpc
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization
 
 import ralvarezdev.certificate_pb2 as certificate_pb2
 import ralvarezdev.certificate_pb2_grpc as certificate_pb2_grpc
@@ -16,8 +18,8 @@ from crypto.ed25519 import (
 	CERTIFICATE_VALIDITY_DAYS,
 )
 from database.psycopg.connection import (
-	upsert_decrypter_key,
-	get_decrypter_key,
+	upsert_organization_key,
+	get_active_organization_key,
 )
 
 class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
@@ -70,7 +72,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 				return
 
 		# Check if the public key common name is already associated with an existing certificate
-		if not upsert_decrypter_key(common_name, public_key):
+		if not upsert_organization_key(common_name, public_key):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details(f"Common name '{common_name}' is already associated with an existing certificate")
 			print(f"Common name '{common_name}' is already associated with an existing certificate")
@@ -106,7 +108,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			print("Missing certificate")
 			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Missing certificate")
 
-		# Validate the certificate
+		# Validate the certificate by checking its signature against the issuer public key
 		try:
 			is_valid = validate_certificate_from_pem_data(cert_pem, ISSUER_PUBLIC_KEY)
 		except Exception as e:
@@ -114,8 +116,31 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_details('Error validating certificate')
 			print(f"Error validating certificate: {e}")
 			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Error validating certificate")
+		if not is_valid:
+			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+			context.set_details('Invalid certificate')
+			print("Invalid certificate")
+			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Invalid certificate")
 
+		# Check if the public key is associated with an active organization key
 		print(f"Certificate validation result: {is_valid}")
+		cert = x509.load_pem_x509_certificate(cert_pem)
+		common_name = cert.subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)[0].value
+		public_key = cert.public_key()
+		active_public_key = get_active_organization_key(common_name)
+		if not active_public_key:
+			context.set_code(grpc.StatusCode.NOT_FOUND)
+			context.set_details(f'No active organization key found for common name: {common_name}')
+			print(f'No active organization key found for common name: {common_name}')
+			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="No active organization key found")
+		if public_key.public_bytes(
+			serialization.Encoding.Raw,
+			serialization.PublicFormat.Raw
+			) != active_public_key:
+			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+			context.set_details('Certificate public key does not match active organization key')
+			print('Certificate public key does not match active organization key')
+			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Certificate public key does not match active organization key")
 
 		# Return the validation result
 		return certificate_pb2.ValidateCertificateResponse(is_valid=is_valid)
@@ -130,7 +155,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			return certificate_pb2.GetPublicKeyResponse()
 
 		# Get the public key from the database
-		public_key = get_decrypter_key(common_name)
+		public_key = get_active_organization_key(common_name)
 		if not public_key:
 			context.set_code(grpc.StatusCode.NOT_FOUND)
 			context.set_details(f'No public key found for common name: {common_name}')

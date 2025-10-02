@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dralvarezdev/certificate.proto\x12\x0bralvarezdev\"\xaa\x01\n\x1aGenerateCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\x12\x12\n\npublic_key\x18\x07 \x01(\x0c\".\n\x1bGenerateCertificateResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\"1\n\x1aValidateCertificateRequest\x12\x13\n\x0b\x63\x65rtificate\x18\x01 \x01(\x0c\"/\n\x1bValidateCertificateResponse\x12\x10\n\x08is_valid\x18\x01 \x01(\x08\"*\n\x13GetPublicKeyRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\"*\n\x14GetPublicKeyResponse\x12\x12\n\npublic_key\x18\x01 \x01(\x0c\x32\xba\x02\n\x0b\x43\x65rtificate\x12j\n\x13GenerateCertificate\x12\'.ralvarezdev.GenerateCertificateRequest\x1a(.ralvarezdev.GenerateCertificateResponse0\x01\x12j\n\x13ValidateCertificate\x12\'.ralvarezdev.ValidateCertificateRequest\x1a(.ralvarezdev.ValidateCertificateResponse(\x01\x12S\n\x0cGetPublicKey\x12 .ralvarezdev.GetPublicKeyRequest\x1a!.ralvarezdev.GetPublicKeyResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dralvarezdev/certificate.proto\x12\x0bralvarezdev\"\xaa\x01\n\x1aGenerateCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\x12\x12\n\npublic_key\x18\x07 \x01(\x0c\".\n\x1bGenerateCertificateResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\"1\n\x1aValidateCertificateRequest\x12\x13\n\x0b\x63\x65rtificate\x18\x01 \x01(\x0c\"Q\n\x1bValidateCertificateResponse\x12\x10\n\x08is_valid\x18\x01 \x01(\x08\x12\x14\n\x07\x64\x65tails\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_details\"*\n\x13GetPublicKeyRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\"*\n\x14GetPublicKeyResponse\x12\x12\n\npublic_key\x18\x01 \x01(\x0c\x32\xba\x02\n\x0b\x43\x65rtificate\x12j\n\x13GenerateCertificate\x12\'.ralvarezdev.GenerateCertificateRequest\x1a(.ralvarezdev.GenerateCertificateResponse0\x01\x12j\n\x13ValidateCertificate\x12\'.ralvarezdev.ValidateCertificateRequest\x1a(.ralvarezdev.ValidateCertificateResponse(\x01\x12S\n\x0cGetPublicKey\x12 .ralvarezdev.GetPublicKeyRequest\x1a!.ralvarezdev.GetPublicKeyResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -38,11 +38,11 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_VALIDATECERTIFICATEREQUEST']._serialized_start=267
   _globals['_VALIDATECERTIFICATEREQUEST']._serialized_end=316
   _globals['_VALIDATECERTIFICATERESPONSE']._serialized_start=318
-  _globals['_VALIDATECERTIFICATERESPONSE']._serialized_end=365
-  _globals['_GETPUBLICKEYREQUEST']._serialized_start=367
-  _globals['_GETPUBLICKEYREQUEST']._serialized_end=409
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=411
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=453
-  _globals['_CERTIFICATE']._serialized_start=456
-  _globals['_CERTIFICATE']._serialized_end=770
+  _globals['_VALIDATECERTIFICATERESPONSE']._serialized_end=399
+  _globals['_GETPUBLICKEYREQUEST']._serialized_start=401
+  _globals['_GETPUBLICKEYREQUEST']._serialized_end=443
+  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=445
+  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=487
+  _globals['_CERTIFICATE']._serialized_start=490
+  _globals['_CERTIFICATE']._serialized_end=804
 # @@protoc_insertion_point(module_scope)

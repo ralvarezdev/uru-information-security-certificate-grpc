@@ -24,12 +24,12 @@ def create_connection():
 		print(f"An error occurred while connecting to the database: {e}")
 		return None
 
-def upsert_decrypter_key(common_name: str, key_value: bytes) -> bool:
-	"""Call the upsert_decrypter_key function in PostgreSQL.
+def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
+	"""Call the upsert_organization_key function in PostgreSQL.
 
 	Args:
-		common_name (str): The common name associated with the decrypter key.
-		key_value (bytes): The decrypter key value.
+		common_name (str): The common name associated with the organization key.
+		key_value (bytes): The organization key value.
 
 	Returns:
 		bool: True if the operation was successful, False otherwise.
@@ -38,40 +38,40 @@ def upsert_decrypter_key(common_name: str, key_value: bytes) -> bool:
 		with conn.cursor() as cur:
 			try:
 				cur.execute(
-					"SELECT upsert_decrypter_key(%s, %s);",
+					"SELECT upsert_organization_key(%s, %s);",
 					(common_name, key_value)
 				)
 				conn.commit()
-				print(f"Upserted decrypter key for common name: {common_name}")
+				print(f"Upserted organization key for common name: {common_name}")
 				return True
 			except Exception as e:
 				conn.rollback()
-				print(f"An error occurred while upserting the decrypter key: {e}")
+				print(f"An error occurred while upserting the organization key: {e}")
 				return False
 
-def get_decrypter_key(common_name: str) -> bytes | None:
-	"""Retrieve the decrypter key for a given common name from PostgreSQL.
+def get_active_organization_key(common_name: str) -> bytes | None:
+	"""Retrieve the organization key for a given common name from PostgreSQL.
 
 	Args:
-		common_name (str): The common name associated with the decrypter key.
+		common_name (str): The common name associated with the organization key.
 
 	Returns:
-		bytes | None: The decrypter key value if found, None otherwise.
+		bytes | None: The organization key value if found, None otherwise.
 	"""
 	with create_connection() as conn:
 		with conn.cursor() as cur:
 			try:
 				cur.execute(
-					"SELECT key_value FROM decrypter_keys WHERE common_name = %s;",
+					"SELECT get_active_organization_key(%s);",
 					(common_name,)
 				)
 				result = cur.fetchone()
-				if result:
-					print(f"Retrieved decrypter key for common name: {common_name}")
+				if result and result[0]:
+					print(f"Retrieved organization key for common name: {common_name}")
 					return result[0]
 				else:
-					print(f"No decrypter key found for common name: {common_name}")
+					print(f"No active organization key found for common name: {common_name}")
 					return None
 			except Exception as e:
-				print(f"An error occurred while retrieving the decrypter key: {e}")
+				print(f"An error occurred while retrieving the organization key: {e}")
 				return None
