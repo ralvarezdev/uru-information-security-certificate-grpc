@@ -6,14 +6,15 @@ from cryptography import x509
 
 from ralvarezdev import certificate_pb2
 from ralvarezdev import certificate_pb2_grpc
-from crypto.ed25519.keys import load_public_key_from_pem_data
-from crypto.ed25519.certificate import (
+from crypto.ed25519.load import load_public_key_from_pem_data
+from crypto.x509 import (
 	generate_certificate_from_public_key,
 	validate_certificate_from_pem_data,
 )
 from crypto.ed25519 import (
 	ISSUER_SUBJECT,
 	ISSUER_PUBLIC_KEY,
+	ISSUER_PRIVATE_KEY,
 	CERTIFICATE_VALIDITY_DAYS,
 )
 from database.psycopg.connection import (
@@ -84,6 +85,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		cert, cert_content = generate_certificate_from_public_key(
 			public_key=public_key,
 			issuer_subject=ISSUER_SUBJECT,
+			issuer_private_key=ISSUER_PRIVATE_KEY,
 			common_name=common_name,
 			organization=organization,
 			organizational_unit=organizational_unit,
@@ -107,14 +109,12 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			return
 
 		# Return the certificate content
-		yield certificate_pb2.IssueCertificateResponse(content=cert_content)
+		yield certificate_pb2.IssueCertificateResponse(certificate_content=cert_content)
 
 	def ValidateCertificate(self, request, context):
 		# Get the certificate from the request
-		cert_pem = b""
-		for chunk in request:
-			cert_pem += chunk.content
-		if not cert_pem:
+		cert_bytes = request.certificate_content
+		if not cert_bytes:
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Certificate is required')
 			print("Missing certificate")
@@ -122,7 +122,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 
 		# Validate the certificate by checking its signature against the issuer public key
 		try:
-			is_valid = validate_certificate_from_pem_data(cert_pem, ISSUER_PUBLIC_KEY)
+			is_valid = validate_certificate_from_pem_data(cert_bytes, ISSUER_PUBLIC_KEY)
 		except Exception as e:
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error validating certificate')
@@ -136,7 +136,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 
 		# Load the certificate to get its serial number
 		print(f"Certificate validation result: {is_valid}")
-		cert = x509.load_pem_x509_certificate(cert_pem)
+		cert = x509.load_pem_x509_certificate(cert_bytes)
 		serial_number = cert.serial_number
 
 		# Check if the certificate is revoked or expired in the database

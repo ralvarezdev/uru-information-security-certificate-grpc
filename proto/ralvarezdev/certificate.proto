@@ -21,19 +21,11 @@ message IssueCertificateRequest {
 }
 
 message IssueCertificateResponse {
-    bytes content = 1;
+    bytes certificate_content = 1;
 }
 
 message ValidateCertificateRequest {
-    bytes certificate = 1;
-}
-
-message GetPublicKeyRequest {
-    string common_name = 1;
-}
-
-message GetPublicKeyResponse {
-    bytes public_key = 1;
+    bytes certificate_content = 1;
 }
 
 message RevokeCertificateRequest {

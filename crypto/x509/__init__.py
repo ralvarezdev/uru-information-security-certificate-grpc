@@ -3,11 +3,10 @@ from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization
 from datetime import datetime, timedelta, timezone
 
-from crypto.ed25519 import ISSUER_PRIVATE_KEY
-
 def generate_certificate_from_public_key(
 	public_key,
 	issuer_subject,
+	issuer_private_key,
 	common_name: str,
 	organization: str,
 	organizational_unit: str,
@@ -22,6 +21,7 @@ def generate_certificate_from_public_key(
 	Args:
 		public_key: The public key object.
 		issuer_subject: Issuer subject.
+		issuer_private_key: Issuer private key for signing the certificate.
 		common_name (str): Common Name (CN) for the certificate.
 		organization (str): Organization (O) for the certificate.
 		organizational_unit (str): Organizational Unit (OU) for the certificate.
@@ -61,7 +61,7 @@ def generate_certificate_from_public_key(
     ).serial_number(
 		serial_number
 	).sign(
-		private_key=ISSUER_PRIVATE_KEY,
+		private_key=issuer_private_key,
 		algorithm=None
 	)
 	return cert, cert.public_bytes(serialization.Encoding.PEM)

@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dralvarezdev/certificate.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"\xa7\x01\n\x17IssueCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\x12\x12\n\npublic_key\x18\x07 \x01(\x0c\"+\n\x18IssueCertificateResponse\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\"1\n\x1aValidateCertificateRequest\x12\x13\n\x0b\x63\x65rtificate\x18\x01 \x01(\x0c\"*\n\x13GetPublicKeyRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\"*\n\x14GetPublicKeyResponse\x12\x12\n\npublic_key\x18\x01 \x01(\x0c\"1\n\x18RevokeCertificateRequest\x12\x15\n\rserial_number\x18\x01 \x01(\t2\x9e\x02\n\x0b\x43\x65rtificate\x12\x61\n\x10IssueCertificate\x12$.ralvarezdev.IssueCertificateRequest\x1a%.ralvarezdev.IssueCertificateResponse0\x01\x12X\n\x13ValidateCertificate\x12\'.ralvarezdev.ValidateCertificateRequest\x1a\x16.google.protobuf.Empty(\x01\x12R\n\x11RevokeCertificate\x12%.ralvarezdev.RevokeCertificateRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dralvarezdev/certificate.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"\xa7\x01\n\x17IssueCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\x12\x12\n\npublic_key\x18\x07 \x01(\x0c\"7\n\x18IssueCertificateResponse\x12\x1b\n\x13\x63\x65rtificate_content\x18\x01 \x01(\x0c\"9\n\x1aValidateCertificateRequest\x12\x1b\n\x13\x63\x65rtificate_content\x18\x01 \x01(\x0c\"1\n\x18RevokeCertificateRequest\x12\x15\n\rserial_number\x18\x01 \x01(\t2\x9e\x02\n\x0b\x43\x65rtificate\x12\x61\n\x10IssueCertificate\x12$.ralvarezdev.IssueCertificateRequest\x1a%.ralvarezdev.IssueCertificateResponse0\x01\x12X\n\x13ValidateCertificate\x12\'.ralvarezdev.ValidateCertificateRequest\x1a\x16.google.protobuf.Empty(\x01\x12R\n\x11RevokeCertificate\x12%.ralvarezdev.RevokeCertificateRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,15 +35,11 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_ISSUECERTIFICATEREQUEST']._serialized_start=76
   _globals['_ISSUECERTIFICATEREQUEST']._serialized_end=243
   _globals['_ISSUECERTIFICATERESPONSE']._serialized_start=245
-  _globals['_ISSUECERTIFICATERESPONSE']._serialized_end=288
-  _globals['_VALIDATECERTIFICATEREQUEST']._serialized_start=290
-  _globals['_VALIDATECERTIFICATEREQUEST']._serialized_end=339
-  _globals['_GETPUBLICKEYREQUEST']._serialized_start=341
-  _globals['_GETPUBLICKEYREQUEST']._serialized_end=383
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=385
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=427
-  _globals['_REVOKECERTIFICATEREQUEST']._serialized_start=429
-  _globals['_REVOKECERTIFICATEREQUEST']._serialized_end=478
-  _globals['_CERTIFICATE']._serialized_start=481
-  _globals['_CERTIFICATE']._serialized_end=767
+  _globals['_ISSUECERTIFICATERESPONSE']._serialized_end=300
+  _globals['_VALIDATECERTIFICATEREQUEST']._serialized_start=302
+  _globals['_VALIDATECERTIFICATEREQUEST']._serialized_end=359
+  _globals['_REVOKECERTIFICATEREQUEST']._serialized_start=361
+  _globals['_REVOKECERTIFICATEREQUEST']._serialized_end=410
+  _globals['_CERTIFICATE']._serialized_start=413
+  _globals['_CERTIFICATE']._serialized_end=699
 # @@protoc_insertion_point(module_scope)
