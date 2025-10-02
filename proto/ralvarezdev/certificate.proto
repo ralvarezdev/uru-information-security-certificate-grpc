@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 
 service Certificate {
     rpc IssueCertificate(IssueCertificateRequest) returns (stream IssueCertificateResponse);
-    rpc ValidateCertificate(stream ValidateCertificateRequest) returns (ValidateCertificateResponse);
+    rpc ValidateCertificate(stream ValidateCertificateRequest) returns (google.protobuf.Empty);
     rpc RevokeCertificate(RevokeCertificateRequest) returns (google.protobuf.Empty);
 }
 
@@ -26,11 +26,6 @@ message IssueCertificateResponse {
 
 message ValidateCertificateRequest {
     bytes certificate = 1;
-}
-
-message ValidateCertificateResponse {
-    bool is_valid = 1;
-    optional string details = 2;
 }
 
 message GetPublicKeyRequest {

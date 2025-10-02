@@ -43,7 +43,7 @@ class CertificateStub(object):
         self.ValidateCertificate = channel.stream_unary(
                 '/ralvarezdev.Certificate/ValidateCertificate',
                 request_serializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateRequest.SerializeToString,
-                response_deserializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateResponse.FromString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
         self.RevokeCertificate = channel.unary_unary(
                 '/ralvarezdev.Certificate/RevokeCertificate',
@@ -84,7 +84,7 @@ def add_CertificateServicer_to_server(servicer, server):
             'ValidateCertificate': grpc.stream_unary_rpc_method_handler(
                     servicer.ValidateCertificate,
                     request_deserializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateRequest.FromString,
-                    response_serializer=ralvarezdev_dot_certificate__pb2.ValidateCertificateResponse.SerializeToString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'RevokeCertificate': grpc.unary_unary_rpc_method_handler(
                     servicer.RevokeCertificate,
@@ -145,7 +145,7 @@ class Certificate(object):
             target,
             '/ralvarezdev.Certificate/ValidateCertificate',
             ralvarezdev_dot_certificate__pb2.ValidateCertificateRequest.SerializeToString,
-            ralvarezdev_dot_certificate__pb2.ValidateCertificateResponse.FromString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

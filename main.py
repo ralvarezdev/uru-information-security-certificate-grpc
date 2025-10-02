@@ -118,7 +118,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Certificate is required')
 			print("Missing certificate")
-			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Missing certificate")
+			return certificate_pb2.Empty()
 
 		# Validate the certificate by checking its signature against the issuer public key
 		try:
@@ -127,12 +127,12 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error validating certificate')
 			print(f"Error validating certificate: {e}")
-			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Error validating certificate")
+			return certificate_pb2.Empty()
 		if not is_valid:
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Invalid certificate')
 			print("Invalid certificate")
-			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Invalid certificate")
+			return certificate_pb2.Empty()
 
 		# Load the certificate to get its serial number
 		print(f"Certificate validation result: {is_valid}")
@@ -144,10 +144,10 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Certificate is revoked or expired')
 			print("Certificate is revoked or expired")
-			return certificate_pb2.ValidateCertificateResponse(is_valid=False, details="Certificate is revoked or expired")
+			return certificate_pb2.Empty()
 
 		# Return the validation result
-		return certificate_pb2.ValidateCertificateResponse(is_valid=is_valid)
+		return certificate_pb2.Empty()
 
 	def RevokeCertificate(self, request, context):
 		# Get the serial number from the request
@@ -156,17 +156,17 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Serial number is required')
 			print("Missing serial number")
-			return certificate_pb2.RevokeCertificateResponse(success=False)
+			return certificate_pb2.Empty()
 
 		# Revoke the certificate in the database
 		if not revoke_certificate(serial_number):
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error revoking certificate or certificate not found')
 			print("Error revoking certificate or certificate not found")
-			return certificate_pb2.RevokeCertificateResponse(success=False)
+			return certificate_pb2.Empty()
 
 		print(f"Revoked certificate with serial number: {serial_number}")
-		return certificate_pb2.RevokeCertificateResponse(success=True)
+		return certificate_pb2.Empty()
 
 def serve(host: str, port: int):
 	"""
