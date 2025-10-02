@@ -1,3 +1,4 @@
+import os
 from argparse import ArgumentParser
 from concurrent import futures
 
@@ -16,6 +17,7 @@ from crypto.ed25519 import (
 	ISSUER_PUBLIC_KEY,
 	ISSUER_PRIVATE_KEY,
 	CERTIFICATE_VALIDITY_DAYS,
+	DATA_PATH,
 )
 from database.psycopg.connection import (
 	upsert_organization_key,
@@ -108,6 +110,14 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			yield certificate_pb2.IssueCertificateResponse()
 			return
 
+		# Store the public key in disk
+		common_name = common_name.replace(".", "_")
+		public_key_filename = f"{common_name}_public_key.pem"
+		public_key_path = os.path.join(DATA_PATH, public_key_filename)
+		with open(public_key_path, "wb") as f:
+			f.write(public_key_pem)
+		print(f"Stored public key at {public_key_path}")
+
 		# Return the certificate content
 		yield certificate_pb2.IssueCertificateResponse(certificate_content=cert_content)
 
@@ -167,6 +177,31 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 
 		print(f"Revoked certificate with serial number: {serial_number}")
 		return certificate_pb2.Empty()
+
+	def GetPublicKeyByCommonName(self, request, context):
+		# Get the common name from the request
+		common_name = request.common_name
+		if not common_name:
+			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+			context.set_details('Common name is required')
+			print("Missing common name")
+			return certificate_pb2.GetPublicKeyByCommonNameResponse()
+
+		# Load the public key from disk
+		common_name = common_name.replace(".", "_")
+		public_key_filename = f"{common_name}_public_key.pem"
+		public_key_path = os.path.join(DATA_PATH, public_key_filename)
+		if not os.path.exists(public_key_path):
+			context.set_code(grpc.StatusCode.NOT_FOUND)
+			context.set_details('Public key not found')
+			print(f"Public key not found for common name: {common_name}")
+			return certificate_pb2.GetPublicKeyByCommonNameResponse()
+
+		with open(public_key_path, "rb") as f:
+			public_key_pem = f.read()
+
+		print(f"Retrieved public key for common name: {common_name}")
+		return certificate_pb2.GetPublicKeyByCommonNameResponse(public_key=public_key_pem)
 
 def serve(host: str, port: int):
 	"""

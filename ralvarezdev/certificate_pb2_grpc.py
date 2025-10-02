@@ -50,6 +50,11 @@ class CertificateStub(object):
                 request_serializer=ralvarezdev_dot_certificate__pb2.RevokeCertificateRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
+        self.GetPublicKeyByCommonName = channel.unary_unary(
+                '/ralvarezdev.Certificate/GetPublicKeyByCommonName',
+                request_serializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameRequest.SerializeToString,
+                response_deserializer=ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.FromString,
+                _registered_method=True)
 
 
 class CertificateServicer(object):
@@ -73,6 +78,12 @@ class CertificateServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetPublicKeyByCommonName(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CertificateServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -90,6 +101,11 @@ def add_CertificateServicer_to_server(servicer, server):
                     servicer.RevokeCertificate,
                     request_deserializer=ralvarezdev_dot_certificate__pb2.RevokeCertificateRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'GetPublicKeyByCommonName': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetPublicKeyByCommonName,
+                    request_deserializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameRequest.FromString,
+                    response_serializer=ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -173,6 +189,33 @@ class Certificate(object):
             '/ralvarezdev.Certificate/RevokeCertificate',
             ralvarezdev_dot_certificate__pb2.RevokeCertificateRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetPublicKeyByCommonName(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/ralvarezdev.Certificate/GetPublicKeyByCommonName',
+            ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameRequest.SerializeToString,
+            ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.FromString,
             options,
             channel_credentials,
             insecure,

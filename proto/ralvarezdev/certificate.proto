@@ -8,6 +8,7 @@ service Certificate {
     rpc IssueCertificate(IssueCertificateRequest) returns (stream IssueCertificateResponse);
     rpc ValidateCertificate(stream ValidateCertificateRequest) returns (google.protobuf.Empty);
     rpc RevokeCertificate(RevokeCertificateRequest) returns (google.protobuf.Empty);
+    rpc GetPublicKeyByCommonName(GetPublicKeyByCommonNameRequest) returns (IssueCertificateResponse);
 }
 
 message IssueCertificateRequest {
@@ -30,4 +31,12 @@ message ValidateCertificateRequest {
 
 message RevokeCertificateRequest {
     string serial_number = 1;
+}
+
+message GetPublicKeyByCommonNameRequest {
+    string common_name = 1;
+}
+
+message GetPublicKeyByCommonNameResponse {
+    bytes public_key = 1;
 }
