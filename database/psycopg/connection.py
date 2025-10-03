@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import psycopg
+from cryptography.hazmat.primitives import serialization
 
 from database.psycopg import (
 	POSTGRES_DB,
@@ -130,3 +131,31 @@ def issue_certificate(serial_number: int, common_name: str, expires_at: datetime
 				conn.rollback()
 				logger.error(f"An error occurred while issuing the certificate: {e}")
 				return False
+
+def get_active_organization_key(common_name: str):
+	"""Call the get_active_organization_key function in PostgreSQL.
+
+	Args:
+		common_name (str): The common name associated with the organization key.
+		
+	Returns:
+		bytes: The organization key value, or None if not found.
+	"""
+	with create_connection() as conn:
+		with conn.cursor() as cur:
+			try:
+				cur.execute(
+					"SELECT get_active_organization_key(%s);",
+					(common_name,)
+				)
+				result = cur.fetchone()
+				if result is not None:
+					key_value = result[0]
+					logger.info(f"Retrieved active organization key for common name: {common_name}")
+					return key_value
+				else:
+					logger.warning(f"No active organization key found for common name: {common_name}")
+					return None
+			except Exception as e:
+				logger.error(f"An error occurred while retrieving the organization key: {e}")
+				return None

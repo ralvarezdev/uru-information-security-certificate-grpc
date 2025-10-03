@@ -1,7 +1,5 @@
-import os
 from argparse import ArgumentParser
 from concurrent import futures
-import logging
 import logging
 
 import grpc
@@ -19,13 +17,13 @@ from crypto.x509 import (
 from crypto.ed25519 import (
 	ISSUER_PUBLIC_KEY,
 	ISSUER_PRIVATE_KEY,
-	DATA_PATH,
 )
 from database.psycopg.connection import (
 	upsert_organization_key,
 	issue_certificate,
 	revoke_certificate,
 	check_certificate_validity,
+	get_active_organization_key,
 )
 
 # Configure logger
@@ -35,8 +33,8 @@ logger = logging.getLogger(__name__)
 class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 	def IssueCertificate(self, request, context):
 		# Get the public key from the request
-		public_key_pem = request.public_key
-		if not public_key_pem:
+		public_key_bytes = request.public_key
+		if not public_key_bytes:
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Public key is required')
 			logger.error("Missing public key")
@@ -45,7 +43,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 
 		# Check if the public key is valid
 		try:
-			public_key = load_public_key_from_pem_data(public_key_pem)
+			public_key = load_public_key_from_pem_data(public_key_bytes)
 		except Exception as e:
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Invalid public key format')
@@ -82,7 +80,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 				return
 
 		# Check if the public key common name is already associated with an existing certificate
-		if not upsert_organization_key(common_name, public_key):
+		if not upsert_organization_key(common_name, public_key_bytes):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details(f"Common name '{common_name}' is already associated with an existing certificate")
 			logger.error(f"Common name '{common_name}' is already associated with an existing certificate")
@@ -115,14 +113,6 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			logger.error("Error storing issued certificate")
 			yield certificate_pb2.IssueCertificateResponse()
 			return
-
-		# Store the public key in disk
-		common_name = common_name.replace(".", "_")
-		public_key_filename = f"{common_name}_public_key.pem"
-		public_key_path = os.path.join(DATA_PATH, public_key_filename)
-		with open(public_key_path, "wb") as f:
-			f.write(public_key_pem)
-		logger.info(f"Stored public key at {public_key_path}")
 
 		# Return the certificate content
 		yield certificate_pb2.IssueCertificateResponse(certificate_content=cert_content)
@@ -193,21 +183,16 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			logger.error("Missing common name")
 			return certificate_pb2.GetPublicKeyByCommonNameResponse()
 
-		# Load the public key from disk
-		common_name = common_name.replace(".", "_")
-		public_key_filename = f"{common_name}_public_key.pem"
-		public_key_path = os.path.join(DATA_PATH, public_key_filename)
-		if not os.path.exists(public_key_path):
+		# Get the public key from the database
+		public_key_bytes = get_active_organization_key(common_name)
+		if not public_key_bytes:
 			context.set_code(grpc.StatusCode.NOT_FOUND)
 			context.set_details('Public key not found')
 			logger.error(f"Public key not found for common name: {common_name}")
 			return certificate_pb2.GetPublicKeyByCommonNameResponse()
 
-		with open(public_key_path, "rb") as f:
-			public_key_pem = f.read()
-
 		logger.info(f"Retrieved public key for common name: {common_name}")
-		return certificate_pb2.GetPublicKeyByCommonNameResponse(public_key=public_key_pem)
+		return certificate_pb2.GetPublicKeyByCommonNameResponse(public_key=public_key_bytes)
 
 def serve(host: str, port: int):
 	"""
