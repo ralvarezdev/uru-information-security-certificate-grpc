@@ -121,7 +121,7 @@ def issue_certificate(serial_number: int, common_name: str, expires_at: datetime
 		with conn.cursor() as cur:
 			try:
 				cur.execute(
-					"CALL issue_certificate(%s, %s, %s);",
+					"CALL issue_certificate(%s::bigint, %s::text, %s::timestamptz);",
 					(serial_number, common_name, expires_at)
 				)
 				conn.commit()
