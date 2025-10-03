@@ -7,8 +7,10 @@ from database.psycopg import (
 	POSTGRES_USER,
 	POSTGRES_PASSWORD,
 	POSTGRES_HOST,
-	POSTGRES_PORT
+	POSTGRES_PORT,
+	logger,
 )
+
 
 def create_connection():
 	"""Create a connection to the PostgreSQL database."""
@@ -20,10 +22,10 @@ def create_connection():
 			host=POSTGRES_HOST,
 			port=POSTGRES_PORT
 		)
-		print("Connection to the database was successful.")
+		logger.info("Connection to the database was successful.")
 		return conn
 	except Exception as e:
-		print(f"An error occurred while connecting to the database: {e}")
+		logger.error(f"An error occurred while connecting to the database: {e}")
 		return None
 
 def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
@@ -44,11 +46,11 @@ def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
 					(common_name, key_value)
 				)
 				conn.commit()
-				print(f"Upserted organization key for common name: {common_name}")
+				logger.info(f"Upserted organization key for common name: {common_name}")
 				return True
 			except Exception as e:
 				conn.rollback()
-				print(f"An error occurred while upserting the organization key: {e}")
+				logger.error(f"An error occurred while upserting the organization key: {e}")
 				return False
 
 def revoke_certificate(serial_number: str) -> bool:
@@ -68,11 +70,11 @@ def revoke_certificate(serial_number: str) -> bool:
 					(serial_number,)
 				)
 				conn.commit()
-				print(f"Revoked certificate with serial number: {serial_number}")
+				logger.info(f"Revoked certificate with serial number: {serial_number}")
 				return True
 			except Exception as e:
 				conn.rollback()
-				print(f"An error occurred while revoking the certificate: {e}")
+				logger.error(f"An error occurred while revoking the certificate: {e}")
 				return False
 
 def check_certificate_validity(serial_number: int) -> bool:
@@ -94,13 +96,13 @@ def check_certificate_validity(serial_number: int) -> bool:
 				result = cur.fetchone()
 				if result is not None:
 					is_valid = result[0]
-					print(f"Certificate with serial number {serial_number} validity: {is_valid}")
+					logger.info(f"Certificate with serial number {serial_number} validity: {is_valid}")
 					return is_valid
 				else:
-					print(f"No certificate found with serial number: {serial_number}")
+					logger.warning(f"No certificate found with serial number: {serial_number}")
 					return False
 			except Exception as e:
-				print(f"An error occurred while checking certificate validity: {e}")
+				logger.error(f"An error occurred while checking certificate validity: {e}")
 				return False
 
 def issue_certificate(serial_number: int, common_name: str, expires_at: datetime) -> bool:
@@ -122,9 +124,9 @@ def issue_certificate(serial_number: int, common_name: str, expires_at: datetime
 					(serial_number, common_name, expires_at)
 				)
 				conn.commit()
-				print(f"Issued certificate with serial number: {serial_number}")
+				logger.info(f"Issued certificate with serial number: {serial_number}")
 				return True
 			except Exception as e:
 				conn.rollback()
-				print(f"An error occurred while issuing the certificate: {e}")
+				logger.error(f"An error occurred while issuing the certificate: {e}")
 				return False

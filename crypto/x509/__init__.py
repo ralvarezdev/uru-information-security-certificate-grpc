@@ -1,10 +1,15 @@
 import os
+import logging
 
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
+
+# Configure logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables from a .env file
 load_dotenv()
@@ -113,5 +118,5 @@ def validate_certificate_from_pem_data(certificate_pem: bytes, public_key) -> bo
 			serialization.PublicFormat.Raw
 		)
 	except Exception as e:
-		print(f"Certificate validation error: {e}")
+		logger.warning(f"Certificate validation error: {e}")
 		return False
