@@ -74,9 +74,6 @@ def generate_certificate_from_public_key(
 		x509.NameAttribute(NameOID.COMMON_NAME, common_name),
     ])
 
-	# Generates a random 20-byte integer
-	serial_number = x509.random_serial_number()
-
 	cert = x509.CertificateBuilder().subject_name(
         subject
     ).issuer_name(
@@ -89,8 +86,6 @@ def generate_certificate_from_public_key(
         datetime.now(timezone.utc)
     ).not_valid_after(
         datetime.now(timezone.utc) + timedelta(days=certificate_validity_days)
-    ).serial_number(
-		serial_number
 	).sign(
 		private_key=issuer_private_key,
 		algorithm=None
