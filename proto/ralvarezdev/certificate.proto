@@ -8,7 +8,7 @@ service Certificate {
     rpc IssueCertificate(IssueCertificateRequest) returns (stream IssueCertificateResponse);
     rpc ValidateCertificate(stream ValidateCertificateRequest) returns (google.protobuf.Empty);
     rpc RevokeCertificate(RevokeCertificateRequest) returns (google.protobuf.Empty);
-    rpc GetPublicKeyByCommonName(GetPublicKeyByCommonNameRequest) returns (IssueCertificateResponse);
+    rpc GetPublicKeyByCommonName(GetPublicKeyByCommonNameRequest) returns (GetPublicKeyByCommonNameResponse);
 }
 
 message IssueCertificateRequest {

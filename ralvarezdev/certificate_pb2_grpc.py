@@ -53,7 +53,7 @@ class CertificateStub(object):
         self.GetPublicKeyByCommonName = channel.unary_unary(
                 '/ralvarezdev.Certificate/GetPublicKeyByCommonName',
                 request_serializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameRequest.SerializeToString,
-                response_deserializer=ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.FromString,
+                response_deserializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameResponse.FromString,
                 _registered_method=True)
 
 
@@ -105,7 +105,7 @@ def add_CertificateServicer_to_server(servicer, server):
             'GetPublicKeyByCommonName': grpc.unary_unary_rpc_method_handler(
                     servicer.GetPublicKeyByCommonName,
                     request_deserializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameRequest.FromString,
-                    response_serializer=ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.SerializeToString,
+                    response_serializer=ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -215,7 +215,7 @@ class Certificate(object):
             target,
             '/ralvarezdev.Certificate/GetPublicKeyByCommonName',
             ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameRequest.SerializeToString,
-            ralvarezdev_dot_certificate__pb2.IssueCertificateResponse.FromString,
+            ralvarezdev_dot_certificate__pb2.GetPublicKeyByCommonNameResponse.FromString,
             options,
             channel_credentials,
             insecure,
