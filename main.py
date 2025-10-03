@@ -5,6 +5,7 @@ from concurrent import futures
 import grpc
 from cryptography import x509
 
+from google.protobuf.empty_pb2 import Empty
 from crypto.ed25519 import (
 	ISSUER_PUBLIC_KEY,
 	ISSUER_PRIVATE_KEY,
@@ -137,7 +138,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Certificate is required')
 			logger.error("Missing certificate")
-			return certificate_pb2.Empty()
+			return Empty()
 
 		# Validate the certificate by checking its signature against the issuer public key
 		try:
@@ -149,12 +150,12 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error validating certificate')
 			logger.error(f"Error validating certificate: {e}")
-			return certificate_pb2.Empty()
+			return Empty()
 		if not is_valid:
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Invalid certificate')
 			logger.error("Invalid certificate")
-			return certificate_pb2.Empty()
+			return Empty()
 
 		# Load the certificate to get its serial number
 		cert = x509.load_pem_x509_certificate(cert_bytes)
@@ -165,11 +166,11 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Certificate is revoked or expired')
 			logger.error("Certificate is revoked or expired")
-			return certificate_pb2.Empty()
+			return Empty()
 
 		# Return the validation result
 		logger.info(f"Certificate validation result: {is_valid}")
-		return certificate_pb2.Empty()
+		return Empty()
 
 	def RevokeCertificate(self, request, context):
 		# Get the serial number from the request
@@ -178,7 +179,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Serial number is required')
 			logger.error("Missing serial number")
-			return certificate_pb2.Empty()
+			return Empty()
 
 		# Revoke the certificate in the database
 		if not revoke_certificate(str(serial_number)):
@@ -187,10 +188,10 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 				'Error revoking certificate or certificate not found',
 				)
 			logger.error("Error revoking certificate or certificate not found")
-			return certificate_pb2.Empty()
+			return Empty()
 
 		logger.info(f"Revoked certificate with serial number: {serial_number}")
-		return certificate_pb2.Empty()
+		return Empty()
 
 	def GetPublicKeyByCommonName(self, request, context):
 		# Get the common name from the request
