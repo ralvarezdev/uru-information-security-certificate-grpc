@@ -11,12 +11,12 @@ from crypto.ed25519.load import load_public_key_from_pem_data
 from crypto.x509 import (
 	generate_certificate_from_public_key,
 	validate_certificate_from_pem_data,
+	ISSUER_SUBJECT,
+	CERTIFICATE_VALIDITY_DAYS,
 )
 from crypto.ed25519 import (
-	ISSUER_SUBJECT,
 	ISSUER_PUBLIC_KEY,
 	ISSUER_PRIVATE_KEY,
-	CERTIFICATE_VALIDITY_DAYS,
 	DATA_PATH,
 )
 from database.psycopg.connection import (

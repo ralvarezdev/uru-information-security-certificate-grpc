@@ -1,7 +1,33 @@
+import os
+
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization
 from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file
+load_dotenv()
+
+# Load issuer details from environment variables
+ISSUER_COMMON_NAME = os.getenv("ISSUER_COMMON_NAME")
+ISSUER_ORGANIZATION = os.getenv("ISSUER_ORGANIZATION")
+ISSUER_ORGANIZATIONAL_UNIT = os.getenv("ISSUER_ORGANIZATIONAL_UNIT")
+ISSUER_LOCALITY = os.getenv("ISSUER_LOCALITY")
+ISSUER_STATE = os.getenv("ISSUER_STATE")
+ISSUER_COUNTRY = os.getenv("ISSUER_COUNTRY")
+
+ISSUER_SUBJECT = x509.Name([
+    x509.NameAttribute(NameOID.COUNTRY_NAME, ISSUER_COUNTRY),
+    x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, ISSUER_STATE),
+	x509.NameAttribute(NameOID.LOCALITY_NAME, ISSUER_LOCALITY),
+    x509.NameAttribute(NameOID.ORGANIZATION_NAME, ISSUER_ORGANIZATION),
+	x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, ISSUER_ORGANIZATIONAL_UNIT),
+	x509.NameAttribute(NameOID.COMMON_NAME, ISSUER_COMMON_NAME),
+])
+
+# Load certificate validity period from environment variables
+CERTIFICATE_VALIDITY_DAYS = int(os.getenv("CERTIFICATE_VALIDITY_DAYS"))
 
 def generate_certificate_from_public_key(
 	public_key,
