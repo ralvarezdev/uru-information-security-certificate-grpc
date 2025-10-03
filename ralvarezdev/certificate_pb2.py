@@ -9,44 +9,41 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-	_runtime_version.Domain.PUBLIC,
-	6,
-	31,
-	1,
-	'',
-	'ralvarezdev/certificate.proto',
-	)
+    _runtime_version.Domain.PUBLIC,
+    6,
+    31,
+    1,
+    '',
+    'ralvarezdev/certificate.proto'
+)
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-	b'\n\x1dralvarezdev/certificate.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"\xa7\x01\n\x17IssueCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\x12\x12\n\npublic_key\x18\x07 \x01(\x0c\"7\n\x18IssueCertificateResponse\x12\x1b\n\x13\x63\x65rtificate_content\x18\x01 \x01(\x0c\"9\n\x1aValidateCertificateRequest\x12\x1b\n\x13\x63\x65rtificate_content\x18\x01 \x01(\x0c\"1\n\x18RevokeCertificateRequest\x12\x15\n\rserial_number\x18\x01 \x01(\t\"6\n\x1fGetPublicKeyByCommonNameRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\"6\n GetPublicKeyByCommonNameResponse\x12\x12\n\npublic_key\x18\x01 \x01(\x0c\x32\x8f\x03\n\x0b\x43\x65rtificate\x12\x61\n\x10IssueCertificate\x12$.ralvarezdev.IssueCertificateRequest\x1a%.ralvarezdev.IssueCertificateResponse0\x01\x12X\n\x13ValidateCertificate\x12\'.ralvarezdev.ValidateCertificateRequest\x1a\x16.google.protobuf.Empty(\x01\x12R\n\x11RevokeCertificate\x12%.ralvarezdev.RevokeCertificateRequest\x1a\x16.google.protobuf.Empty\x12o\n\x18GetPublicKeyByCommonName\x12,.ralvarezdev.GetPublicKeyByCommonNameRequest\x1a%.ralvarezdev.IssueCertificateResponseb\x06proto3',
-	)
+
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+
+
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dralvarezdev/certificate.proto\x12\x0bralvarezdev\x1a\x1bgoogle/protobuf/empty.proto\"\xa7\x01\n\x17IssueCertificateRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\x12\x14\n\x0corganization\x18\x02 \x01(\t\x12\x1b\n\x13organizational_unit\x18\x03 \x01(\t\x12\x10\n\x08locality\x18\x04 \x01(\t\x12\r\n\x05state\x18\x05 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x06 \x01(\t\x12\x12\n\npublic_key\x18\x07 \x01(\x0c\"7\n\x18IssueCertificateResponse\x12\x1b\n\x13\x63\x65rtificate_content\x18\x01 \x01(\x0c\"9\n\x1aValidateCertificateRequest\x12\x1b\n\x13\x63\x65rtificate_content\x18\x01 \x01(\x0c\"1\n\x18RevokeCertificateRequest\x12\x15\n\rserial_number\x18\x01 \x01(\t\"6\n\x1fGetPublicKeyByCommonNameRequest\x12\x13\n\x0b\x63ommon_name\x18\x01 \x01(\t\"6\n GetPublicKeyByCommonNameResponse\x12\x12\n\npublic_key\x18\x01 \x01(\x0c\x32\x8f\x03\n\x0b\x43\x65rtificate\x12\x61\n\x10IssueCertificate\x12$.ralvarezdev.IssueCertificateRequest\x1a%.ralvarezdev.IssueCertificateResponse0\x01\x12X\n\x13ValidateCertificate\x12\'.ralvarezdev.ValidateCertificateRequest\x1a\x16.google.protobuf.Empty(\x01\x12R\n\x11RevokeCertificate\x12%.ralvarezdev.RevokeCertificateRequest\x1a\x16.google.protobuf.Empty\x12o\n\x18GetPublicKeyByCommonName\x12,.ralvarezdev.GetPublicKeyByCommonNameRequest\x1a%.ralvarezdev.IssueCertificateResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(
-	DESCRIPTOR,
-	'ralvarezdev.certificate_pb2',
-	_globals,
-	)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ralvarezdev.certificate_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-	DESCRIPTOR._loaded_options = None
-	_globals['_ISSUECERTIFICATEREQUEST']._serialized_start = 76
-	_globals['_ISSUECERTIFICATEREQUEST']._serialized_end = 243
-	_globals['_ISSUECERTIFICATERESPONSE']._serialized_start = 245
-	_globals['_ISSUECERTIFICATERESPONSE']._serialized_end = 300
-	_globals['_VALIDATECERTIFICATEREQUEST']._serialized_start = 302
-	_globals['_VALIDATECERTIFICATEREQUEST']._serialized_end = 359
-	_globals['_REVOKECERTIFICATEREQUEST']._serialized_start = 361
-	_globals['_REVOKECERTIFICATEREQUEST']._serialized_end = 410
-	_globals['_GETPUBLICKEYBYCOMMONNAMEREQUEST']._serialized_start = 412
-	_globals['_GETPUBLICKEYBYCOMMONNAMEREQUEST']._serialized_end = 466
-	_globals['_GETPUBLICKEYBYCOMMONNAMERESPONSE']._serialized_start = 468
-	_globals['_GETPUBLICKEYBYCOMMONNAMERESPONSE']._serialized_end = 522
-	_globals['_CERTIFICATE']._serialized_start = 525
-	_globals['_CERTIFICATE']._serialized_end = 924
+  DESCRIPTOR._loaded_options = None
+  _globals['_ISSUECERTIFICATEREQUEST']._serialized_start=76
+  _globals['_ISSUECERTIFICATEREQUEST']._serialized_end=243
+  _globals['_ISSUECERTIFICATERESPONSE']._serialized_start=245
+  _globals['_ISSUECERTIFICATERESPONSE']._serialized_end=300
+  _globals['_VALIDATECERTIFICATEREQUEST']._serialized_start=302
+  _globals['_VALIDATECERTIFICATEREQUEST']._serialized_end=359
+  _globals['_REVOKECERTIFICATEREQUEST']._serialized_start=361
+  _globals['_REVOKECERTIFICATEREQUEST']._serialized_end=410
+  _globals['_GETPUBLICKEYBYCOMMONNAMEREQUEST']._serialized_start=412
+  _globals['_GETPUBLICKEYBYCOMMONNAMEREQUEST']._serialized_end=466
+  _globals['_GETPUBLICKEYBYCOMMONNAMERESPONSE']._serialized_start=468
+  _globals['_GETPUBLICKEYBYCOMMONNAMERESPONSE']._serialized_end=522
+  _globals['_CERTIFICATE']._serialized_start=525
+  _globals['_CERTIFICATE']._serialized_end=924
 # @@protoc_insertion_point(module_scope)
