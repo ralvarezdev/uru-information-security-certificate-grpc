@@ -143,7 +143,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		# Validate the certificate by checking its signature against the issuer public key
 		try:
 			is_valid = validate_certificate_from_pem_data(
-				cert_bytes,
+				bytes(cert_bytes),
 				ISSUER_PUBLIC_KEY,
 				)
 		except Exception as e:
