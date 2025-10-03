@@ -1,34 +1,35 @@
+import logging
 from argparse import ArgumentParser
 from concurrent import futures
-import logging
 
 import grpc
 from cryptography import x509
 
-from ralvarezdev import certificate_pb2
-from ralvarezdev import certificate_pb2_grpc
+from crypto.ed25519 import (
+	ISSUER_PUBLIC_KEY,
+	ISSUER_PRIVATE_KEY,
+	)
 from crypto.ed25519.load import load_public_key_from_pem_data
 from crypto.x509 import (
 	generate_certificate_from_public_key,
 	validate_certificate_from_pem_data,
 	ISSUER_SUBJECT,
 	CERTIFICATE_VALIDITY_DAYS,
-)
-from crypto.ed25519 import (
-	ISSUER_PUBLIC_KEY,
-	ISSUER_PRIVATE_KEY,
-)
+	)
 from database.psycopg.connection import (
 	upsert_organization_key,
 	issue_certificate,
 	revoke_certificate,
 	check_certificate_validity,
 	get_active_organization_key,
-)
+	)
+from ralvarezdev import certificate_pb2
+from ralvarezdev import certificate_pb2_grpc
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 	def IssueCertificate(self, request, context):
@@ -73,7 +74,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			if not value:
 				context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 				context.set_details(
-					f"{field.replace('_', ' ').title()} is required"
+					f"{field.replace('_', ' ').title()} is required",
 					)
 				logger.error(f"Missing required field: {field}")
 				yield certificate_pb2.IssueCertificateResponse()
@@ -82,8 +83,12 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		# Check if the public key common name is already associated with an existing certificate
 		if not upsert_organization_key(common_name, public_key_bytes):
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-			context.set_details(f"Common name '{common_name}' is already associated with an existing certificate")
-			logger.error(f"Common name '{common_name}' is already associated with an existing certificate")
+			context.set_details(
+				f"Common name '{common_name}' is already associated with an existing certificate",
+				)
+			logger.error(
+				f"Common name '{common_name}' is already associated with an existing certificate",
+				)
 			yield certificate_pb2.IssueCertificateResponse()
 			return
 
@@ -99,7 +104,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			state=state,
 			country=country,
 			certificate_validity_days=CERTIFICATE_VALIDITY_DAYS,
-		)
+			)
 		logger.info(f"Issued certificate for {common_name}")
 
 		# Get the serial number and expiration date from the certificate
@@ -107,7 +112,11 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		expiration_date = cert.not_valid_after_utc
 
 		# Store the issued certificate in the database
-		if not issue_certificate(str(serial_number), common_name, expiration_date):
+		if not issue_certificate(
+				str(serial_number),
+				common_name,
+				expiration_date,
+				):
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error storing issued certificate')
 			logger.error("Error storing issued certificate")
@@ -115,11 +124,15 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			return
 
 		# Return the certificate content
-		yield certificate_pb2.IssueCertificateResponse(certificate_content=cert_content)
+		yield certificate_pb2.IssueCertificateResponse(
+			certificate_content=cert_content,
+			)
 
-	def ValidateCertificate(self, request, context):
+	def ValidateCertificate(self, request_iterator, context):
 		# Get the certificate from the request
-		cert_bytes = request.certificate_content
+		cert_bytes = bytearray()
+		for request in request_iterator:
+			cert_bytes.extend(request.certificate_content)
 		if not cert_bytes:
 			context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
 			context.set_details('Certificate is required')
@@ -128,7 +141,10 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 
 		# Validate the certificate by checking its signature against the issuer public key
 		try:
-			is_valid = validate_certificate_from_pem_data(cert_bytes, ISSUER_PUBLIC_KEY)
+			is_valid = validate_certificate_from_pem_data(
+				cert_bytes,
+				ISSUER_PUBLIC_KEY,
+				)
 		except Exception as e:
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error validating certificate')
@@ -167,7 +183,9 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		# Revoke the certificate in the database
 		if not revoke_certificate(str(serial_number)):
 			context.set_code(grpc.StatusCode.INTERNAL)
-			context.set_details('Error revoking certificate or certificate not found')
+			context.set_details(
+				'Error revoking certificate or certificate not found',
+				)
 			logger.error("Error revoking certificate or certificate not found")
 			return certificate_pb2.Empty()
 
@@ -192,7 +210,10 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			return certificate_pb2.GetPublicKeyByCommonNameResponse()
 
 		logger.info(f"Retrieved public key for common name: {common_name}")
-		return certificate_pb2.GetPublicKeyByCommonNameResponse(public_key=public_key_bytes)
+		return certificate_pb2.GetPublicKeyByCommonNameResponse(
+			public_key=public_key_bytes,
+			)
+
 
 def serve(host: str, port: int):
 	"""
@@ -218,7 +239,12 @@ def serve(host: str, port: int):
 if __name__ == '__main__':
 	# Get port from arguments
 	parser = ArgumentParser()
-	parser.add_argument('--host', type=str, default='localhost', help='Host to listen on')
+	parser.add_argument(
+		'--host',
+		type=str,
+		default='localhost',
+		help='Host to listen on',
+		)
 	parser.add_argument('--port', type=int, help='Port to listen on')
 	args = parser.parse_args()
 	logger.info(f'Starting server on {args.host}:{args.port}')

@@ -1,10 +1,10 @@
-import os
 import logging
+import os
+from datetime import datetime, timedelta, timezone
 
 from cryptography import x509
-from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization
-from datetime import datetime, timedelta, timezone
+from cryptography.x509.oid import NameOID
 from dotenv import load_dotenv
 
 # Configure logger
@@ -22,30 +22,36 @@ ISSUER_LOCALITY = os.getenv("ISSUER_LOCALITY")
 ISSUER_STATE = os.getenv("ISSUER_STATE")
 ISSUER_COUNTRY = os.getenv("ISSUER_COUNTRY")
 
-ISSUER_SUBJECT = x509.Name([
-    x509.NameAttribute(NameOID.COUNTRY_NAME, ISSUER_COUNTRY),
-    x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, ISSUER_STATE),
-	x509.NameAttribute(NameOID.LOCALITY_NAME, ISSUER_LOCALITY),
-    x509.NameAttribute(NameOID.ORGANIZATION_NAME, ISSUER_ORGANIZATION),
-	x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, ISSUER_ORGANIZATIONAL_UNIT),
-	x509.NameAttribute(NameOID.COMMON_NAME, ISSUER_COMMON_NAME),
-])
+ISSUER_SUBJECT = x509.Name(
+	[
+		x509.NameAttribute(NameOID.COUNTRY_NAME, ISSUER_COUNTRY),
+		x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, ISSUER_STATE),
+		x509.NameAttribute(NameOID.LOCALITY_NAME, ISSUER_LOCALITY),
+		x509.NameAttribute(NameOID.ORGANIZATION_NAME, ISSUER_ORGANIZATION),
+		x509.NameAttribute(
+			NameOID.ORGANIZATIONAL_UNIT_NAME,
+			ISSUER_ORGANIZATIONAL_UNIT,
+			),
+		x509.NameAttribute(NameOID.COMMON_NAME, ISSUER_COMMON_NAME),
+		],
+	)
 
 # Load certificate validity period from environment variables
 CERTIFICATE_VALIDITY_DAYS = int(os.getenv("CERTIFICATE_VALIDITY_DAYS"))
 
+
 def generate_certificate_from_public_key(
-	public_key,
-	issuer_subject,
-	issuer_private_key,
-	common_name: str,
-	organization: str,
-	organizational_unit: str,
-	locality: str,
-	state: str,
-	country: str,
-	certificate_validity_days: int,
-) -> tuple[x509.Certificate, bytes]:
+		public_key,
+		issuer_subject,
+		issuer_private_key,
+		common_name: str,
+		organization: str,
+		organizational_unit: str,
+		locality: str,
+		state: str,
+		country: str,
+		certificate_validity_days: int,
+		) -> tuple[x509.Certificate, bytes]:
 	"""
 	Generate a self-signed X.509 certificate from a public key.
 
@@ -65,34 +71,43 @@ def generate_certificate_from_public_key(
 		tuple[x509.Certificate, bytes]: The certificate object and the PEM-encoded certificate.
 	"""
 	# Create the subject
-	subject = x509.Name([
-        x509.NameAttribute(NameOID.COUNTRY_NAME, country),
-        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state),
-        x509.NameAttribute(NameOID.LOCALITY_NAME, locality),
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, organization),
-		x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, organizational_unit),
-		x509.NameAttribute(NameOID.COMMON_NAME, common_name),
-    ])
+	subject = x509.Name(
+		[
+			x509.NameAttribute(NameOID.COUNTRY_NAME, country),
+			x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state),
+			x509.NameAttribute(NameOID.LOCALITY_NAME, locality),
+			x509.NameAttribute(NameOID.ORGANIZATION_NAME, organization),
+			x509.NameAttribute(
+				NameOID.ORGANIZATIONAL_UNIT_NAME,
+				organizational_unit,
+				),
+			x509.NameAttribute(NameOID.COMMON_NAME, common_name),
+			],
+		)
 
 	cert = x509.CertificateBuilder().subject_name(
-        subject
-    ).issuer_name(
-        issuer_subject
-    ).public_key(
-        public_key
-    ).serial_number(
-        x509.random_serial_number()
-    ).not_valid_before(
-        datetime.now(timezone.utc)
-    ).not_valid_after(
-        datetime.now(timezone.utc) + timedelta(days=certificate_validity_days)
-	).sign(
+		subject,
+		).issuer_name(
+		issuer_subject,
+		).public_key(
+		public_key,
+		).serial_number(
+		x509.random_serial_number(),
+		).not_valid_before(
+		datetime.now(timezone.utc),
+		).not_valid_after(
+		datetime.now(timezone.utc) + timedelta(days=certificate_validity_days),
+		).sign(
 		private_key=issuer_private_key,
-		algorithm=None
-	)
+		algorithm=None,
+		)
 	return cert, cert.public_bytes(serialization.Encoding.PEM)
 
-def validate_certificate_from_pem_data(certificate_pem: bytes, public_key) -> bool:
+
+def validate_certificate_from_pem_data(
+		certificate_pem: bytes,
+		public_key,
+		) -> bool:
 	"""
 	Validate a certificate against a public key.
 
@@ -107,11 +122,11 @@ def validate_certificate_from_pem_data(certificate_pem: bytes, public_key) -> bo
 		cert = x509.load_pem_x509_certificate(certificate_pem)
 		return cert.public_key().public_bytes(
 			serialization.Encoding.Raw,
-			serialization.PublicFormat.Raw
-		) == public_key.public_bytes(
+			serialization.PublicFormat.Raw,
+			) == public_key.public_bytes(
 			serialization.Encoding.Raw,
-			serialization.PublicFormat.Raw
-		)
+			serialization.PublicFormat.Raw,
+			)
 	except Exception as e:
 		logger.warning(f"Certificate validation error: {e}")
 		return False

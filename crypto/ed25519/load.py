@@ -1,5 +1,6 @@
 from cryptography.hazmat.primitives import serialization
 
+
 def load_public_key_from_file(file_path: str):
 	"""
 	Load a PEM-formatted public key from a file.
@@ -14,6 +15,7 @@ def load_public_key_from_file(file_path: str):
 		pem_data = f.read()
 	return load_public_key_from_pem_data(pem_data)
 
+
 def load_public_key_from_pem_data(pem_data: bytes):
 	"""
 	Load a PEM-formatted public key from bytes.
@@ -25,6 +27,7 @@ def load_public_key_from_pem_data(pem_data: bytes):
 		public_key: The loaded public key object.
 	"""
 	return serialization.load_pem_public_key(pem_data)
+
 
 def load_private_key_from_file(file_path: str, password: bytes = None):
 	"""
@@ -40,6 +43,7 @@ def load_private_key_from_file(file_path: str, password: bytes = None):
 	with open(file_path, 'rb') as f:
 		pem_data = f.read()
 	return load_private_key_from_pem_data(pem_data, password=password)
+
 
 def load_private_key_from_pem_data(pem_data: bytes, password: bytes = None):
 	"""

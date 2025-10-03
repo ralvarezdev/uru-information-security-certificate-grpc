@@ -1,7 +1,6 @@
 from datetime import datetime
 
 import psycopg
-from cryptography.hazmat.primitives import serialization
 
 from database.psycopg import (
 	POSTGRES_DB,
@@ -10,7 +9,7 @@ from database.psycopg import (
 	POSTGRES_HOST,
 	POSTGRES_PORT,
 	logger,
-)
+	)
 
 
 def create_connection():
@@ -21,13 +20,14 @@ def create_connection():
 			user=POSTGRES_USER,
 			password=POSTGRES_PASSWORD,
 			host=POSTGRES_HOST,
-			port=POSTGRES_PORT
-		)
+			port=POSTGRES_PORT,
+			)
 		logger.info("Connection to the database was successful.")
 		return conn
 	except Exception as e:
 		logger.error(f"An error occurred while connecting to the database: {e}")
 		return None
+
 
 def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
 	"""Call the upsert_organization_key function in PostgreSQL.
@@ -44,15 +44,20 @@ def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
 			try:
 				cur.execute(
 					"CALL upsert_organization_key(%s, %s);",
-					(common_name, key_value)
-				)
+					(common_name, key_value),
+					)
 				conn.commit()
-				logger.info(f"Upserted organization key for common name: {common_name}")
+				logger.info(
+					f"Upserted organization key for common name: {common_name}",
+					)
 				return True
 			except Exception as e:
 				conn.rollback()
-				logger.error(f"An error occurred while upserting the organization key: {e}")
+				logger.error(
+					f"An error occurred while upserting the organization key: {e}",
+					)
 				return False
+
 
 def revoke_certificate(serial_number: str) -> bool:
 	"""Call the revoke_certificate procedure in PostgreSQL.
@@ -68,15 +73,20 @@ def revoke_certificate(serial_number: str) -> bool:
 			try:
 				cur.execute(
 					"CALL revoke_certificate(%s);",
-					(serial_number,)
-				)
+					(serial_number,),
+					)
 				conn.commit()
-				logger.info(f"Revoked certificate with serial number: {serial_number}")
+				logger.info(
+					f"Revoked certificate with serial number: {serial_number}",
+					)
 				return True
 			except Exception as e:
 				conn.rollback()
-				logger.error(f"An error occurred while revoking the certificate: {e}")
+				logger.error(
+					f"An error occurred while revoking the certificate: {e}",
+					)
 				return False
+
 
 def check_certificate_validity(serial_number: str) -> bool:
 	"""Call the check_certificate_validity procedure in PostgreSQL.
@@ -92,21 +102,32 @@ def check_certificate_validity(serial_number: str) -> bool:
 			try:
 				cur.execute(
 					"SELECT check_certificate_validity(%s);",
-					(serial_number,)
-				)
+					(serial_number,),
+					)
 				result = cur.fetchone()
 				if result is not None:
 					is_valid = result[0]
-					logger.info(f"Certificate with serial number {serial_number} validity: {is_valid}")
+					logger.info(
+						f"Certificate with serial number {serial_number} validity: {is_valid}",
+						)
 					return is_valid
 				else:
-					logger.warning(f"No certificate found with serial number: {serial_number}")
+					logger.warning(
+						f"No certificate found with serial number: {serial_number}",
+						)
 					return False
 			except Exception as e:
-				logger.error(f"An error occurred while checking certificate validity: {e}")
+				logger.error(
+					f"An error occurred while checking certificate validity: {e}",
+					)
 				return False
 
-def issue_certificate(serial_number: str, common_name: str, expires_at: datetime) -> bool:
+
+def issue_certificate(
+		serial_number: str,
+		common_name: str,
+		expires_at: datetime,
+		) -> bool:
 	"""Call the issue_certificate procedure in PostgreSQL.
 
 	Args:
@@ -122,15 +143,20 @@ def issue_certificate(serial_number: str, common_name: str, expires_at: datetime
 			try:
 				cur.execute(
 					"CALL issue_certificate(%s::text, %s::text, %s::timestamptz);",
-					(serial_number, common_name, expires_at)
-				)
+					(serial_number, common_name, expires_at),
+					)
 				conn.commit()
-				logger.info(f"Issued certificate with serial number: {serial_number}")
+				logger.info(
+					f"Issued certificate with serial number: {serial_number}",
+					)
 				return True
 			except Exception as e:
 				conn.rollback()
-				logger.error(f"An error occurred while issuing the certificate: {e}")
+				logger.error(
+					f"An error occurred while issuing the certificate: {e}",
+					)
 				return False
+
 
 def get_active_organization_key(common_name: str):
 	"""Call the get_active_organization_key function in PostgreSQL.
@@ -146,16 +172,22 @@ def get_active_organization_key(common_name: str):
 			try:
 				cur.execute(
 					"SELECT get_active_organization_key(%s);",
-					(common_name,)
-				)
+					(common_name,),
+					)
 				result = cur.fetchone()
 				if result is not None:
 					key_value = result[0]
-					logger.info(f"Retrieved active organization key for common name: {common_name}")
+					logger.info(
+						f"Retrieved active organization key for common name: {common_name}",
+						)
 					return key_value
 				else:
-					logger.warning(f"No active organization key found for common name: {common_name}")
+					logger.warning(
+						f"No active organization key found for common name: {common_name}",
+						)
 					return None
 			except Exception as e:
-				logger.error(f"An error occurred while retrieving the organization key: {e}")
+				logger.error(
+					f"An error occurred while retrieving the organization key: {e}",
+					)
 				return None
