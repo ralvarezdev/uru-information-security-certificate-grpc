@@ -3,7 +3,7 @@ import os
 from cryptography.hazmat.primitives import serialization
 
 # Get the base directory of the project
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 def load_public_key_from_file(file_path: str):
 	"""
