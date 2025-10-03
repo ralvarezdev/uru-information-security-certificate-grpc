@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization
 from cryptography.x509.oid import NameOID
+from cryptography.exceptions import InvalidSignature
 from dotenv import load_dotenv
 
 # Configure logger
@@ -106,27 +107,26 @@ def generate_certificate_from_public_key(
 
 def validate_certificate_from_pem_data(
 		certificate_pem: bytes,
-		public_key,
+		issuer_public_key,
 		) -> bool:
 	"""
 	Validate a certificate against a public key.
 
 	Args:
 		certificate_pem (bytes): PEM-encoded certificate.
-		public_key: The public key object.
+		issuer_public_key: The issuer public key object.
 
 	Returns:
 		bool: True if the certificate is valid and matches the public key, False otherwise.
 	"""
 	try:
 		cert = x509.load_pem_x509_certificate(certificate_pem)
-		return cert.public_key().public_bytes(
-			serialization.Encoding.Raw,
-			serialization.PublicFormat.Raw,
-			) == public_key.public_bytes(
-			serialization.Encoding.Raw,
-			serialization.PublicFormat.Raw,
+		# This will raise if the signature is invalid
+		issuer_public_key.verify(
+			cert.signature,
+			cert.tbs_certificate_bytes,
 			)
-	except Exception as e:
-		logger.warning(f"Certificate validation error: {e}")
+		return True
+	except (InvalidSignature, Exception) as e:
+		logger.warning(f"Certificate signature validation error: {e}")
 		return False
