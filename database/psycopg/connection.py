@@ -78,11 +78,11 @@ def revoke_certificate(serial_number: str) -> bool:
 				logger.error(f"An error occurred while revoking the certificate: {e}")
 				return False
 
-def check_certificate_validity(serial_number: int) -> bool:
+def check_certificate_validity(serial_number: str) -> bool:
 	"""Call the check_certificate_validity procedure in PostgreSQL.
 
 	Args:
-		serial_number (int): The serial number of the certificate to check.
+		serial_number (str): The serial number of the certificate to check.
 
 	Returns:
 		bool: True if the certificate is valid, False otherwise.
@@ -106,11 +106,11 @@ def check_certificate_validity(serial_number: int) -> bool:
 				logger.error(f"An error occurred while checking certificate validity: {e}")
 				return False
 
-def issue_certificate(serial_number: int, common_name: str, expires_at: datetime) -> bool:
+def issue_certificate(serial_number: str, common_name: str, expires_at: datetime) -> bool:
 	"""Call the issue_certificate procedure in PostgreSQL.
 
 	Args:
-		serial_number (int): The serial number of the issued certificate.
+		serial_number (str): The serial number of the issued certificate.
 		common_name (str): The common name associated with the issued certificate.
 		expires_at (datetime): The expiration timestamp of the issued certificate.
 
@@ -121,7 +121,7 @@ def issue_certificate(serial_number: int, common_name: str, expires_at: datetime
 		with conn.cursor() as cur:
 			try:
 				cur.execute(
-					"CALL issue_certificate(%s::bigint, %s::text, %s::timestamptz);",
+					"CALL issue_certificate(%s::text, %s::text, %s::timestamptz);",
 					(serial_number, common_name, expires_at)
 				)
 				conn.commit()

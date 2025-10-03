@@ -107,7 +107,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		expiration_date = cert.not_valid_after_utc
 
 		# Store the issued certificate in the database
-		if not issue_certificate(serial_number, common_name, expiration_date):
+		if not issue_certificate(str(serial_number), common_name, expiration_date):
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error storing issued certificate')
 			logger.error("Error storing issued certificate")
@@ -145,7 +145,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 		serial_number = cert.serial_number
 
 		# Check if the certificate is revoked or expired in the database
-		if not check_certificate_validity(serial_number):
+		if not check_certificate_validity(str(serial_number)):
 			context.set_code(grpc.StatusCode.UNAUTHENTICATED)
 			context.set_details('Certificate is revoked or expired')
 			logger.error("Certificate is revoked or expired")
@@ -165,7 +165,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			return certificate_pb2.Empty()
 
 		# Revoke the certificate in the database
-		if not revoke_certificate(serial_number):
+		if not revoke_certificate(str(serial_number)):
 			context.set_code(grpc.StatusCode.INTERNAL)
 			context.set_details('Error revoking certificate or certificate not found')
 			logger.error("Error revoking certificate or certificate not found")
