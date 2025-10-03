@@ -40,7 +40,7 @@ def upsert_organization_key(common_name: str, key_value: bytes) -> bool:
 		with conn.cursor() as cur:
 			try:
 				cur.execute(
-					"SELECT upsert_organization_key(%s, %s);",
+					"CALL upsert_organization_key(%s, %s);",
 					(common_name, key_value)
 				)
 				conn.commit()
