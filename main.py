@@ -158,7 +158,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 			return Empty()
 
 		# Load the certificate to get its serial number
-		cert = x509.load_pem_x509_certificate(cert_bytes)
+		cert = x509.load_pem_x509_certificate(bytes(cert_bytes))
 		serial_number = cert.serial_number
 
 		# Check if the certificate is revoked or expired in the database
