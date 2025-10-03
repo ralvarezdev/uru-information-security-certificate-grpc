@@ -104,7 +104,7 @@ class CertificateServicer(certificate_pb2_grpc.CertificateServicer):
 
 		# Get the serial number and expiration date from the certificate
 		serial_number = cert.serial_number
-		expiration_date = cert.not_valid_after
+		expiration_date = cert.not_valid_after_utc
 
 		# Store the issued certificate in the database
 		if not issue_certificate(serial_number, common_name, expiration_date):
