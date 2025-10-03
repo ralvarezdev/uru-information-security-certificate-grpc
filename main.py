@@ -9,7 +9,7 @@ from crypto.ed25519 import (
 	ISSUER_PUBLIC_KEY,
 	ISSUER_PRIVATE_KEY,
 	)
-from crypto.ed25519.load import load_public_key_from_pem_data
+from crypto import load_public_key_from_pem_data
 from crypto.x509 import (
 	generate_certificate_from_public_key,
 	validate_certificate_from_pem_data,
